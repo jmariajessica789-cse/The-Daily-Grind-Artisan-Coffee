@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Grind | Artisan Coffee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">THE <span>DAILY</span> GRIND</div>
+        <div class="nav-right">
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#menu">Menu</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li>
+                    <button type="button" class="nav-login-btn" onclick="openLogin()">
+                        Login
+                    </button>
+                </li>
+            </ul>
+            <div class="cart-icon" onclick="openCart()">🛒 <span id="cart-count">0</span></div>
+        </div>
+    </nav>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content login-container">
+            <span class="close" onclick="closeModals()">×</span>
+            <div class="login-split">
+                <div class="login-image"></div>
+                <div class="login-form" id="auth-container">
+                    <div id="auth-content-wrapper">
+                        <div id="login-side">
+                            <h2>Welcome Back</h2>
+                            <p>Login to your coffee ritual</p>
+                            <form onsubmit="handleAuth(event, 'login')">
+                                <div class="input-group"><label>Email</label><input type="email" placeholder="hello@dailygrind.com" required></div>
+                                <div class="input-group"><label>Password</label><input type="password" placeholder="••••••••" required></div>
+                                <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+                            </form>
+                            <p class="form-footer">Don't have an account? <a href="javascript:void(0)" onclick="toggleAuth(true)">Sign up</a></p>
+                        </div>
+                        <div id="signup-side" style="display: none;">
+                            <h2>Join the Club</h2>
+                            <p>Start your journey with us</p>
+                            <form onsubmit="handleAuth(event, 'signup')">
+                                <div class="input-group">
+                                    <label>Full Name</label>
+                                    <input type="text" placeholder="John Doe" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Email Address</label>
+                                    <input type="email" placeholder="john@example.com" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Create Password</label>
+                                    <input type="password" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="btn" style="width: 100%;">Create Account</button>
+                            </form>
+                            <p class="form-footer">Already a member? <a href="javascript:void(0)" onclick="toggleAuth(false)">Login</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModals()">×</span>
+            <h2>Your Selection</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">Total: $<span id="total-price">0.00</span></div>
+            <button type="button" class="btn" style="width: 100%;" onclick="goToPayment()">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModals()">×</span>
+            <div id="payment-step-1">
+                <h2>Select Payment Method</h2>
+                <button onclick="selectPayment('qr')" class="btn">Google Pay (QR)</button>
+                <button onclick="selectPayment('card')" class="btn">Credit/Debit Card</button>
+                <button onclick="selectPayment('counter')" class="btn">Pay at Counter</button>
+            </div>
+            <div id="payment-step-2" style="display:none;">
+                <div id="payment-details" style="margin: 20px 0;"></div>
+                <button onclick="processPayment()" class="btn">Confirm Payment</button>
+            </div>
+            <div id="payment-success" style="display:none;">
+    <h2 style="color: green;">Payment Successful!</h2>
+
+    <div id="receipt-container" style="
+        text-align:left;
+        background:#f8f8f8;
+        padding:20px;
+        margin:20px 0;
+        border-radius:10px;
+        border:1px solid #ddd;
+        max-height:300px;
+        overflow-y:auto;
+    ">
+    </div>
+
+    <button onclick="downloadReceipt()" class="btn">
+        Download Receipt & Home
+    </button>
+</div>
+        </div>
+    </div>
+
+    <div id="success-screen" class="payment-overlay">
+        <div>
+            <div class="checkmark">✓</div>
+            <h2>Order Placed Successfully!</h2>
+            <p>We are preparing your artisan brew now.</p><br>
+            <button class="btn" onclick="backToHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal">
+        <div class="modal-content profile-container">
+            <span class="close" onclick="closeModals()">&times;</span>
+            <div class="profile-header">
+                <div class="user-avatar" id="user-initial">U</div>
+                <h2 id="user-display-name">User Name</h2>
+                <p id="user-display-email">user@example.com</p>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-box">
+                    <h4 id="user-orders">0</h4>
+                    <p>Orders</p>
+                </div>
+                <div class="stat-box">
+                    <h4 id="user-points">0</h4>
+                    <p>Bean Points</p>
+                </div>
+            </div>
+            <div class="profile-sections">
+                <h3>Recent Orders</h3>
+                <div id="recent-orders-list">
+                    <p class="empty-msg">No recent orders yet. Time for a brew?</p>
+                </div>
+            </div>
+            <button class="btn" style="width: 100%; margin-top: 2rem; background: #8b5e34;" onclick="handleLogout()">Logout</button>
+        </div>
+    </div>
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Elevate Your <br><span>Daily Ritual</span></h1>
+            <p>Artisan beans roasted in small batches.</p><br>
+            <a href="#menu" class="btn" style="text-decoration: none;">View Menu</a>
+        </div>
+    </section>
+
+    <section id="menu" class="menu-section">
+        <h2 class="section-title reveal">Curated Brews</h2>
+        <div class="menu-grid">
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Honey Lavender Latte</h3>
+                    <p>Espresso, oat milk, and organic lavender honey.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$5.50</span>
+                    <button class="btn" onclick="addToCart('Honey Lavender Latte', 5.50)">Add</button>
+                </div>
+            </div>
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Nitro Cold Brew</h3>
+                    <p>Velvety smooth, 16-hour steeped infusion.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$4.75</span>
+                    <button class="btn" onclick="addToCart('Nitro Cold Brew', 4.75)">Add</button>
+                </div>
+            </div>
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Spanish Cortado</h3>
+                    <p>Equal parts espresso and warm, silky milk.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$4.25</span>
+                    <button class="btn" onclick="addToCart('Spanish Cortado', 4.25)">Add</button>
+                </div>
+            </div>
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Pistachio Rose Latte</h3>
+                    <p>Earthly pistachio with a hint of floral rose water.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$6.25</span>
+                    <button class="btn" onclick="addToCart('Pistachio Rose Latte', 6.25)">Add</button>
+                </div>
+            </div>
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Affogato Al Caffè</h3>
+                    <p>Double espresso poured over vanilla bean gelato.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$6.50</span>
+                    <button class="btn" onclick="addToCart('Affogato', 6.50)">Add</button>
+                </div>
+            </div>
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Sourdough Avocado Toast</h3>
+                    <p>Chili flakes, micro-greens, and lemon zest.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$9.00</span>
+                    <button class="btn" onclick="addToCart('Avocado Toast', 9.00)">Add</button>
+                </div>
+            </div>
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Almond Croissant</h3>
+                    <p>Twice-baked with house-made frangipane.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$4.50</span>
+                    <button class="btn" onclick="addToCart('Almond Croissant', 4.50)">Add</button>
+                </div>
+            </div>
+            <div class="menu-item reveal">
+                <div>
+                    <h3>Iced Hibiscus Tea</h3>
+                    <p>Refreshing herbal tea with ginger and lime.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="price">$4.00</span>
+                    <button class="btn" onclick="addToCart('Hibiscus Tea', 4.00)">Add</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 10%;">
+        <div class="about-grid">
+            <div class="about-image reveal">
+                <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1000" alt="Our Cafe">
+                <div class="image-badge">Est. 2012</div>
+            </div>
+            <div class="about-text reveal">
+                <h2 class="section-title" style="text-align: left; margin-bottom: 1.5rem;">Our Story</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">What started as a single vintage espresso cart in 2012 has grown into the heart of the neighborhood. At <strong>The Daily Grind</strong>, we believe coffee is more than a drink—it’s a moment of clarity in a busy world.</p>
+                <p>We source 100% of our beans through direct-trade partnerships, ensuring every farmer is paid fairly and every cup tells a story of quality and care.</p>
+                
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <h3>14+</h3>
+                        <p>Years</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>25k</h3>
+                        <p>Cups Monthly</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>100%</h3>
+                        <p>Organic</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="values-grid" style="margin-top: 5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div class="value-card reveal">
+                <span>🌱</span>
+                <h3>Sustainability</h3>
+                <p>From compostable cups to zero-waste brewing, we love our planet.</p>
+            </div>
+            <div class="value-card reveal">
+                <span>🤝</span>
+                <h3>Community</h3>
+                <p>We host local artists and provide a warm space for everyone.</p>
+            </div>
+            <div class="value-card reveal">
+                <span>☕</span>
+                <h3>Craft</h3>
+                <p>Our baristas train for 100+ hours to master the perfect pour.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<footer id="contact">
+    <div class="footer-container">
+        
+        <div class="location-and-newsletter" style="margin-bottom: 3rem;">
+            <h3>Find Us</h3>
+            <div class="map-wrapper" style="border-radius: 12px; overflow: hidden; height: 350px; margin-bottom: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3886.996165503463!2d80.2520!3d13.0827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a52665a3d706a1d%3A0x64426548a31e87d!2sChennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1680000000000!5m2!1sen!2sin" 
+                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
+                </iframe>
+            </div>
+
+            <div class="newsletter-bar" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h4 style="color: var(--latte);">Join the Coffee Club</h4>
+                    <p style="font-size: 0.8rem; margin: 0;">Get weekly brewing tips and exclusive cafe discounts.</p>
+                </div>
+                <form onsubmit="handleNewsletter(event)" style="display: flex; gap: 0.5rem;">
+                    <input type="email" placeholder="Enter your email" required style="padding: 0.5rem; border-radius: 4px; border: none;">
+                    <button type="submit" class="btn" style="padding: 0.5rem 1rem;">Subscribe</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>The Daily Grind</h3>
+                <p>Crafting moments of clarity in every cup since 2012.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/?hl=en">Instagram</a> | 
+                    <a href="https://x.com/home"> X </a> | 
+                    <a href="https://www.facebook.com/">Facebook</a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Visit Us</h3>
+                <p>123 Espresso Way, Brew City, Chennai.</p>
+                <p><strong>Hours:</strong> Daily 7AM - 8PM</p>
+                <p><strong>Email:</strong> hello@dailygrind.com</p>
+            </div>
+
+            <div class="footer-col">
+                <h3>Drop a Note</h3>
+                <form id="contact-form" onsubmit="handleContact(event)">
+                    <input type="text" id="contact-name" placeholder="Your Name" required>
+                    <input type="email" id="contact-email" placeholder="Your Email" required>
+                    <textarea id="contact-feedback" placeholder="Your feedback..." rows="3" required></textarea>
+                    <button type="submit" class="btn" style="width: 100%; padding: 0.7rem;">Send Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <p class="copyright">&copy; 2026 The Daily Grind - Artisan Coffee</p>
+</footer>
+
+<div id="toast-container" class="toast-container"></div>
+
+<div id="alert-modal" class="modal">
+    <div class="modal-content alert-box">
+        <span class="close" onclick="closeAlert()">&times;</span>
+
+        <div class="alert-icon">☕</div>
+
+        <h2 id="alert-title">Notice</h2>
+
+        <p id="alert-message"></p>
+
+        <button class="btn" onclick="closeAlert()">
+            OK
+        </button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
